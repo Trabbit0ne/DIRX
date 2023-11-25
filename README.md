@@ -16,5 +16,7 @@ pkg install git && git clone https://github.com/RAPS-LAUNCHER/DIRX.git
 cd DIRX && chmod +x * && ./dirx
 ```
 USAGE : 
-./dirx -u <target_url> -w <wordlist_path>
 
+```
+./dirx -u <target_url> -w <wordlist_path>
+```
