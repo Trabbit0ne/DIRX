@@ -1,0 +1,72 @@
+#!/bin/bash
+# Created by Trabbit
+# RAPS production
+# R.C.S.A - DI
+
+clear
+
+trap 'echo -e "\nOperation aborted by the user."; exit' INT
+
+function find_directories() {
+    local url=$1
+    local wordlist_file=$2
+
+    while IFS= read -r directory; do
+        target_url="$url/$directory/"
+        response=$(curl -s -o /dev/null -w "%{http_code}" "$target_url")
+
+        case $response in
+            200)
+                echo -e "\e[32mFound: $target_url\e[0m"
+                ;;
+            403)
+                echo -e "\e[33mForbidden: $target_url\e[0m"
+                ;;
+            404)
+                echo -e "\e[31mNot Found: $target_url\e[0m"
+                ;;
+            *)
+                echo -e "\e[95mUnexpected Status Code for $target_url: $response\e[0m"
+                ;;
+        esac
+    done < "$wordlist_file"
+}
+
+# Read command line arguments
+while getopts 'u:w:' flag; do
+    case "${flag}" in
+        u) target_url="${OPTARG}" ;;
+        w) wordlist_path="${OPTARG}" ;;
+        *) echo "Invalid option: ${flag}" ;;
+    esac
+done
+
+# Check if required options are provided
+if [[ -z "$target_url" || -z "$wordlist_path" ]]; then
+    clear
+    echo -e "\e[31mUsage: ./dirx -u <target_url> -w <wordlist_path>\e[0m"
+    exit 1
+fi
+
+# Get Apache version and open ports
+apache_version=$(apache2 -v | grep "Server version" | awk '{print $3}')
+open_ports=$(netstat -tuln | awk '/^tcp/ {print $4}' | cut -d: -f2 | paste -sd,)
+
+echo -e "\n==================================================================="
+echo -e " ______   _____  _______     ____  ____  "
+echo -e "|_   _ \\.|_   _||_   __ \\   |_  _||_  _| "
+echo -e "  | | \`. \\ | |    | |__) |    \\ \\  / /   "
+echo -e "  | |  | | | |    |  __ /      > \`' <    "
+echo -e " _| |_.' /_| |_  _| |  \\ \\_  _/ /'\\ \\_  "
+echo -e "|______.'|_____||____| |___||____||____| "
+echo -e "                                   V1.0  "
+echo -e "==================================================================="
+echo -e "| [+] TARGET / $target_url  (-u)"
+echo -e "| [+] WORDLIST / $wordlist_path  (-w)"
+echo -e "| [+] Apache Version: $apache_version"
+echo -e "| [+] Open Ports: $open_ports"
+echo -e "==================================================================="
+echo -e " \\\\\\ DIRECTORIES BRUTEFORCE STARTED \\\\\\"
+echo -e "===================================================================\n"
+
+find_directories "$target_url" "$wordlist_path"
