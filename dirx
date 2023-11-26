@@ -3,9 +3,18 @@
 # RAPS production
 # R.C.S.A - DI
 
-clear
 
+clear
 trap 'echo -e "\nOperation aborted by the user."; exit' INT
+
+#Installations
+if [[ "$(uname -o 2>/dev/null)" == "Android" ]]; then
+       pkg install apache2
+else
+       apt-get install apache2
+fi
+
+clear
 
 function find_directories() {
     local url=$1
@@ -49,7 +58,7 @@ if [[ -z "$target_url" || -z "$wordlist_path" ]]; then
 fi
 
 # Get Apache version and open ports
-apache_version=$(apache2 -v | grep "Server version" | awk '{print $3}')
+apache_version=$(httpd -v | awk -F'[ /]' '/Server version/ {print $4}')
 open_ports=$(netstat -tuln | awk '/^tcp/ {print $4}' | cut -d: -f2 | paste -sd,)
 
 echo -e "\n==================================================================="
