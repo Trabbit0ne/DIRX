@@ -1,4 +1,4 @@
-# DIRX
+## DIRX
 
 ![image](https://github.com/RAPS-LAUNCHER/DIRX/assets/143559207/a8027f4f-fa1c-4d57-b36a-05eb36c467ac)
 
