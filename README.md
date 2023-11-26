@@ -15,6 +15,11 @@ pkg install git && git clone https://github.com/RAPS-LAUNCHER/DIRX.git
 ```
 cd DIRX && chmod +x * && ./dirx
 ```
+OR 
+```
+cd && apt update && apt upgrade && pkg install git && git clone https://github.com/RAPS-LAUNCHER/DIRX.git && cd DIRX && chmod +x * && ./dirx
+```
+
 USAGE : 
 
 ```
