@@ -1,6 +1,7 @@
 ## DIRX
 
-![image](https://github.com/RAPS-LAUNCHER/DIRX/assets/143559207/a8027f4f-fa1c-4d57-b36a-05eb36c467ac)
+![image](https://github.com/RAPS-LAUNCHER/DIRX/assets/143559207/a84bae12-8628-400d-872d-36565ee3d06e)
+
 
 INSTALLATION : 
 
