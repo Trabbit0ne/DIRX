@@ -1,0 +1,7 @@
+name: dirx
+version: 1.0
+maintainers:
+  - Trabbit emiledurand666@gmail.com
+platforms:
+  - termux
+  - linux
