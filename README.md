@@ -1,29 +1,20 @@
 ## DIRX
 
-![image](https://github.com/RAPS-LAUNCHER/DIRX/assets/143559207/23c8a57c-8af6-447e-840e-9f89bcec4cd4)
+![image](https://github.com/RAPS-LAUNCHER/DIRX/assets/142556460/09f5a5b4-731a-4923-9a7d-66c3de417895)
 
-
-
-INSTALLATION : 
-
-```
-apt update && apt upgrade -y
-```
-
-```
-pkg install git && git clone https://github.com/RAPS-LAUNCHER/DIRX.git
-
-```
-```
-cd DIRX && chmod +x * && ./dirx
-```
-OR 
+INSTALLATION  
 ```
 cd && (apt update || pkg update) && (apt upgrade || pkg upgrade) && (apt install git || pkg install git) && git clone https://github.com/RAPS-LAUNCHER/DIRX.git && cd DIRX && chmod +x * && ./dirx
 ```
 
-USAGE : 
-
+USAGE
 ```
-./dirx -u <target_url> -w <wordlist_path>
+Usage: ./dirx -u <target_url> -w <wordlist_path> [-f] [-v]
+```
+
+EXAMPLES
+```
+ dirx -u https://exemple.com -w wordlist.txt
+ dirx -u https://exemple.com -w wordlist.txt -f
+ dirx -v
 ```
