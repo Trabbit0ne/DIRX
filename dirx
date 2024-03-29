@@ -21,6 +21,7 @@ if [[ "$(uname -o 2>/dev/null)" == "Android" ]]; then
     continue
 elif [ "$(uname)" == "Linux" ]; then
     cp dirx /bin/
+    chmod +x /bin/dirx
 fi
 
 # Preparing wordlist
