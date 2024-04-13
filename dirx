@@ -79,7 +79,7 @@ while getopts 'u:w:fv' flag; do
         u) target_url="${OPTARG}" ;;
         w) wordlist_path="${OPTARG}" ;;
         f) found_only=true ;;
-        v) version="2.0" && echo "Version: $version" && exit ;;
+        v) version="2.2" && echo "Version: $version" && exit ;;
         *) echo "Invalid option: ${flag}" ;;
     esac
 done
