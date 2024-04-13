@@ -131,7 +131,7 @@ if [[ "$found_only" == true ]]; then
     echo -e "| [+] SHOW ONLY FOUND DIRECTORIES [\e[36m-f\e[0m]"
 fi
 echo -e "{>=============================================<}"
-echo -e " \033[45;1m     \\\\\ DIRECTORIES BRUTEFORCE STARTED \\\\\      \e[0m"
+echo -e " \033[45;1m      \\\\\ DIRECTORY BRUTEFORCE STARTED \\\\\       \e[0m"
 echo -e "{>=============================================<}\n"
 
 # Execute directory brute force
