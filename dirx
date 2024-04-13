@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# Installing apache2
+clear
+
+# Installations
 if ! command -v apache2 &>/dev/null; then
     echo "[i] Installing apache2..."
     if [[ "$(uname -o 2>/dev/null)" == "Android" ]]; then
@@ -16,23 +18,24 @@ if ! command -v apache2 &>/dev/null; then
     fi
 fi
 
-# Copying dirx to /bin/
 if [[ "$(uname -o 2>/dev/null)" == "Android" ]]; then
     continue
 elif [ "$(uname)" == "Linux" ]; then
     cp dirx /bin/
-    chmod +x /bin/dirx
 fi
 
-# Preparing wordlist
 if [ ! -d /usr/share/ ]; then
     mkdir /usr/share/
     cp wordlist.txt /usr/share/
 fi
 
+
 clear
 
+
 trap 'echo -e "\n{>=============================================<}\n                      DONE.\n{>=============================================<}"; exit' INT
+
+clear
 
 function find_directories() {
     local url=$1
@@ -84,6 +87,7 @@ done
 # Check if required options are provided
 if [[ -z "$target_url" || -z "$wordlist_path" ]]; then
     clear
+    echo
     echo -e "[\033[45;1m DIRX ~ RAPS \e[0m]"
     echo "Developed by Trabbit"
     echo "----------------------"
@@ -118,6 +122,7 @@ echo -e "|¯¯¯¯|\\¯¯¯\\‚|¯¯¯¯¯¯¯¯¯|/|¯¯¯¯|\\¯¯¯\\’|¯�
 echo -e "|    |'|   ||__/| |\\__|‚|    | |   ||__        / "
 echo -e "|    |'|   ||¯¯\\| |/¯¯|‚|    |/   /  /       ¯¯| "
 echo -e "|____|/___/‚|_________|'|____|\\___\\’/____/|____| "
+echo -e "                                        \033[38;5;202mTRABBIT\e[0m  "
 echo -e "{>=============================================<}"
 echo -e "| [+] TARGET => $target_url [\e[36m-u\e[0m]                 "
 echo -e "| [+] WORDLIST => $wordlist_filename [\e[36m-w\e[0m]       "
