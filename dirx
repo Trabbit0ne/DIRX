@@ -2,7 +2,7 @@
 
 clear
 
-# Installations
+# Install Apache if not already installed
 if ! command -v apache2 &>/dev/null; then
     echo "[i] Installing apache2..."
     if [[ "$(uname -o 2>/dev/null)" == "Android" ]]; then
@@ -18,20 +18,18 @@ if ! command -v apache2 &>/dev/null; then
     fi
 fi
 
-if [[ "$(uname -o 2>/dev/null)" == "Android" ]]; then
-    continue
-elif [ "$(uname)" == "Linux" ]; then
-    cp dirx /bin/
+# Copy the directory brute force script
+if [[ "$(uname -o 2>/dev/null)" != "Android" && "$(uname)" == "Linux" ]]; then
+    sudo cp dirx /bin/
 fi
 
+# Create directory for wordlist if it doesn't exist
 if [ ! -d /usr/share/ ]; then
-    mkdir /usr/share/
-    cp wordlist.txt /usr/share/
+    sudo mkdir -p /usr/share/
+    sudo cp wordlist.txt /usr/share/
 fi
-
 
 clear
-
 
 trap 'echo -e "\n{>=============================================<}\n                      DONE.\n{>=============================================<}"; exit' INT
 
@@ -98,21 +96,14 @@ if [[ -z "$target_url" || -z "$wordlist_path" ]]; then
     echo " -f (Show only found directories)"
     echo " -v (Print version)"
     echo "------------------------------------------------"
-    echo "Exemples: "
-    echo " dirx -u https://exemple.com -w wordlist.txt"
-    echo " dirx -u https://exemple.com -w wordlist.txt -f"
+    echo "Examples:"
+    echo " dirx -u https://example.com -w wordlist.txt"
+    echo " dirx -u https://example.com -w wordlist.txt -f"
     echo " dirx -v"
     echo
     echo
     exit 1
 fi
-
-# Get Apache version and open ports
-apache_version=$(httpd -v | awk -F'[ /]' '/Server version/ {print $4}')
-open_ports=$(netstat -tln | awk '/^tcp/ {print $4}' | awk -F: '{print $NF}' | paste -sd,)
-
-# Extract only the filename from the wordlist path
-wordlist_filename=$(basename "$wordlist_path")
 
 # User feedback with ASCII art
 echo -e "\n            ####__   ___/ /___                      "
