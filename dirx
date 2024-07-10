@@ -1,24 +1,19 @@
+# ******************************************************************
+# | WARNING: This Tool Is Made For Pentesters And Ethical Purposes |
+# ******************************************************************
 #!/bin/bash
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Youtube: TrabbitOne
+# BuyMeACoffee: trabbit0ne
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# clear the terminal screen
 clear
 
-# Install Apache if not already installed
-if ! command -v apache2 &>/dev/null; then
-    echo "[i] Installing apache2..."
-    if [[ "$(uname -o 2>/dev/null)" == "Android" ]]; then
-        pkg install apache2 -y
-    elif [ "$(uname)" == "Linux" ]; then
-        sudo apt-get update
-        sudo apt-get install -y apache2
-    elif [ "$(uname)" == "Darwin" ]; then
-        brew install apache2
-    else
-        echo "System not supported!"
-        exit 1
-    fi
-fi
-
-# Copy the directory brute force script
+# Add the tool to system /bin
 if [[ "$(uname -o 2>/dev/null)" != "Android" && "$(uname)" == "Linux" ]]; then
     sudo cp dirx /bin/
 fi
@@ -29,40 +24,61 @@ if [ ! -d /usr/share/ ]; then
     sudo cp wordlist.txt /usr/share/
 fi
 
+# clear the terminal screen
 clear
 
-trap 'echo -e "\n{>=============================================<}\n                      DONE.\n{>=============================================<}"; exit' INT
+# Set up a trap to handle the INT signal (usually Ctrl+C)
+trap handle_interrupt INT
 
+function handle_interrupt {
+    echo -e "\n{>=============================================<}"
+    echo -e "                      ENDED                      "
+    echo -e "{>=============================================<}"
+    exit
+}
+
+# clear the terminal screen
 clear
+
+# Function to parse allowed response codes
+function parse_response_codes() {
+    IFS=',' read -ra ADDR <<< "$1"
+    for i in "${ADDR[@]}"; do
+        if [[ "$i" == *-* ]]; then
+            allowed_response_ranges+=("$i")
+            range=(${i//-/ })
+            for ((j=${range[0]}; j<=${range[1]}; j++)); do
+                allowed_responses+=("$j")
+            done
+        else
+            allowed_responses+=("$i")
+        fi
+    done
+}
 
 function find_directories() {
-    local url=$1
-    local wordlist_file=$2
+    local url=$1             # target url for the scan
+    local wordlist_file=$2   # used wordlist for the scan
 
     while IFS= read -r directory; do
         target_url="$url/$directory/"
         response=$(curl -s -o /dev/null -w "%{http_code}" "$target_url")
 
-        if [[ "$found_only" == true ]]; then
-            if [[ "$response" == "200" ]]; then
-                echo -e "[+] [ \e[42mFound\e[0m ]: /$directory/ (+)> [\e[32;1m200\e[0m]"
-                echo -e " ╘═URL => $target_url "
-            fi
-        else
+        if [[ " ${allowed_responses[*]} " == *" $response "* ]]; then
             case $response in
-                200)
+                200) # http response 200 mean valid/found http response
                     echo -e "[+] [ \e[42mFound\e[0m ]: /$directory/ (+)> [\e[32m200\e[0m]"
                     echo -e " ╘═URL => $target_url "
                     ;;
-                403)
+                403) # http response 403 mean that user dont have access to the file/directory
                     echo -e "[+] [ \e[36mForbidden\e[0m ]: /$directory/ (-)> 403"
                     echo " ╘═URL => $target_url "
                     ;;
-                404)
+                404) # http response 404 mean invalid/not-found http response
                     echo -e "[+] [ \e[41mNot Found\e[0m ]: /$directory/ (-)> 404"
                     echo " ╘═URL => $target_url "
                     ;;
-                *)
+                *) # http response (else), e.g., (301,302,401,402,405,...)
                     echo -e "[-] [ \e[37mUnexpected Status Code\e[0m ]: /$directory/ (?)> $response"
                     echo " ╘═URL => $target_url "
                     ;;
@@ -71,12 +87,23 @@ function find_directories() {
     done < "$wordlist_file"
 }
 
+# Initialize variables
+allowed_responses=()        # variable for individual -ar argument value
+allowed_response_ranges=()  # variable for ranged -ar argument value
+found_only=false            # return 200 http response code only
+target_url=""               # target url for scans made by user
+wordlist_path=""            # wordlist used by the user (default: wordlist.txt)
+ar_flag_set=false           # set the -ar argument at false by default
+ar_flag_value=""            # set the -ar ergument value at empty  by default
+
 # Read command line arguments
-while getopts 'u:w:fv' flag; do
+while getopts 'u:w:far:v' flag; do
     case "${flag}" in
         u) target_url="${OPTARG}" ;;
         w) wordlist_path="${OPTARG}" ;;
         f) found_only=true ;;
+        a) parse_response_codes "${OPTARG}"; ar_flag_set=true; ar_flag_value="${OPTARG}" ;;
+        r) parse_response_codes "${OPTARG}"; ar_flag_set=true; ar_flag_value="${OPTARG}" ;;
         v) version="2.2" && echo "Version: $version" && exit ;;
         *) echo "Invalid option: ${flag}" ;;
     esac
@@ -89,16 +116,19 @@ if [[ -z "$target_url" || -z "$wordlist_path" ]]; then
     echo -e "[\033[45;1m DIRX ~ RAPS \e[0m]"
     echo "Developed by Trabbit"
     echo "----------------------"
-    echo -e "Usage: ./dirx -u <\033[38;5;202mtarget_url\e[0m> -w <\033[38;5;202mwordlist_path\e[0m> [\e[36m-f\e[0m] [\e[36m-v\e[0m]"
+    echo -e "Usage: ./dirx -u <\033[38;5;202mtarget_url\e[0m> -w <\033[38;5;202mwordlist_path\e[0m> [\e[36m-f\e[0m] [\e[36m-v\e[0m] [-a <allowed_responses>]"
     echo "------------------------------------------------"
     echo " -u (URL)"
     echo " -w (Wordlist file/path)"
     echo " -f (Show only found directories)"
     echo " -v (Print version)"
+    echo " -a (Allowed response codes, e.g., 200,301,302 or 200-300)"
     echo "------------------------------------------------"
     echo "Examples:"
     echo " dirx -u https://example.com -w wordlist.txt"
     echo " dirx -u https://example.com -w wordlist.txt -f"
+    echo " dirx -u https://example.com -w wordlist.txt -a 200,301,302"
+    echo " dirx -u https://example.com -w wordlist.txt -a 200-300"
     echo " dirx -v"
     echo
     echo
@@ -116,10 +146,13 @@ echo -e "|____|/___/‚|_________|'|____|\\___\\’/____/|____| "
 echo -e "                                        \033[38;5;202mTRABBIT\e[0m  "
 echo -e "{>=============================================<}"
 echo -e "| [+] TARGET => $target_url [\e[36m-u\e[0m]                 "
-echo -e "| [+] WORDLIST => $wordlist_filename [\e[36m-w\e[0m]       "
+echo -e "| [+] WORDLIST => $wordlist_path [\e[36m-w\e[0m]       "
 echo -e "{>=============================================<}"
 if [[ "$found_only" == true ]]; then
     echo -e "| [+] SHOW ONLY FOUND DIRECTORIES [\e[36m-f\e[0m]"
+fi
+if [[ "$ar_flag_set" == true ]]; then
+    echo -e "| [+] ALLOWED RESPONSES => $ar_flag_value [\e[36m-a\e[0m]"
 fi
 echo -e "{>=============================================<}"
 echo -e " \033[45;1m      \\\\\ DIRECTORY BRUTEFORCE STARTED \\\\\       \e[0m"
@@ -136,3 +169,5 @@ else
     echo -e "                      DONE.                      "
 fi
 echo -e "{>=============================================<}"
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
